@@ -1,0 +1,69 @@
+
+import Foundation
+
+enum GasolineStationError {  
+    case noChosenPetrol
+    case emptyStorage
+    case notEnoughMoney
+}
+
+
+struct Azs {
+    var price: Int
+    var storage: Int
+    let petrol: Petrol
+}
+
+struct Petrol {
+    let name: String
+}
+
+class GasolineStation {
+
+    var inventory = [
+        "AI92": Azs(price: 41, storage: 200, petrol: Petrol(name: "AI92")), //dictionary keyword
+        "AI95": Azs(price: 45, storage: 300, petrol: Petrol(name: "AI95")),
+        "AI98": Azs(price: 49, storage: 100, petrol: Petrol(name: "AI98"))
+    ]
+    
+    var cashDeposit = 0
+    
+    func azs(AzsNamed name: String) -> (GasolineStationError?, Petrol?) {
+        guard let gas = inventory[name] else { //отработка элемента по имени из ключ-значение
+            return (GasolineStationError.noChosenPetrol, nil)
+        }
+        
+        guard gas.storage > 0 else { //проверка остатков топлива
+            return (GasolineStationError.emptyStorage, nil)
+        }
+        
+        guard gas.price <= cashDeposit else { //недостаточно средств
+            return (GasolineStationError.notEnoughMoney, nil)
+        }
+        
+        cashDeposit -= gas.price
+        var newGas = gas
+        newGas.storage -= 1
+        inventory[name] = newGas
+        print("hello \(name)")
+        return (nil, newGas.petrol)
+        
+    }
+}
+
+let gasolineStation = GasolineStation()
+gasolineStation.cashDeposit += 1500
+//print(gasolineStation.azs(AzsNamed: "AI93"))
+let result = gasolineStation.azs(AzsNamed: "AI98")
+if let error = result.0 {
+    switch error {
+        case .noChosenPetrol:
+            print("chosen petrolium is missing")
+        case .emptyStorage:
+            print("empty")
+        case .notEnoughMoney:
+            print("not enough money")
+    }
+} else {
+    print("\(result.1!.name)")
+}
